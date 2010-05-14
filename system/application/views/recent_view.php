@@ -49,55 +49,58 @@
 							{
 								continue;
 							}
-							echo('<div class="post">');
-							echo('<h3><a href="' . base_url() . 'index.php/blog/view/' . $p->id . '/' . str_replace(' ', '-',$p->title) . '/" title="' . $p->title . '">' . $p->title . '</a></h3>');
+							?>
+							<div class="post">
+								<h3>
+									<a href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($p->id); ?>/<?php echo(str_replace(' ', '-',$p->title)); ?>/" title="<?php echo($p->title); ?>"><?php echo($p->title); ?></a>
+								</h3>
 							
-							echo('<div class="date">');
-							echo('Posted on ' . $p->date.'<br />');
-							
+								<div class="date">
+									Posted on <?php echo($p->date) ?><br />
+									Tagged:&nbsp;
+							<?php
 							$tags = explode(' ', $p->tags);
 							
-							echo('Tagged: ');
 							foreach($tags as $tag)
 							{
-								echo('<a class="tag" href="' . base_url() . 'index.php/blog/tagged/' . $tag . '/" title="View posts tagged ' . $tag . '">' . $tag . '</a>');
+								?>
+								<a class="tag" href="<?php echo(base_url()); ?>index.php/blog/tagged/<?php echo($tag); ?>/" title="View posts tagged <?php echo($tag); ?>"><?php echo($tag); ?></a>
+								<?php
 							}
-							
-							echo('</div>');
-							
-							// echo('<p class="postbody">');
-							// $body = explode(' ', $p->body);
-							// 
-							// for($i = 0; $i < count($body); $i++)
-							// {
-							// 	echo($body[$i].' ');
-							// 	
-							// 	if($i > 200)
-							// 	{
-							// 		echo("...");
-							// 		$i = count($body);
-							// 	}
-							// }
-							// echo('</p>');
-							echo('<p class="more">');
-							echo('<a class="" href="' . base_url() . 'index.php/blog/view/' . $p->id . '/' . str_replace(' ', '-', $p->title) . '/" title="Read Entry">Read</a>');
+							?>
+							</div>
+							<p class="more">
+								<a class="" href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($p->id); ?>/<?php echo(str_replace(' ', '-', $p->title)); ?>/" title="Read Entry">Read</a>
+							<?php
 							if($this->session->userdata('loggedin'))
 							{
-								echo('&nbsp;&nbsp;<a href="' . base_url() . 'index.php/blog/edit/' . $p->id . '/" title="Edit Post">Edit</a>');
+								?>
+								&nbsp;&nbsp;<a href="<?php echo(base_url()); ?>index.php/blog/edit/<?php echo($p->id); ?>/" title="Edit Post">Edit</a>
+								<?php
 							}
-							echo('</p>');
-							echo('</div>');
+							?>
+							</p>
+							</div>
+							<?php
 						}
 					}
 					else
 					{
 						if($this->session->userdata('loggedin'))
 						{
-							echo('<div class="notice">No posts found. Please <a href="' . base_url() . 'index.php/blog/insert/" title="New Post">create an entry</a>.</div>');
+							?>
+							<div class="notice">
+								No posts found. Please <a href="<?php echo(base_url()); ?>index.php/blog/insert/" title="New Post">create an entry</a>.
+							</div>
+							<?php
 						}
 						else
 						{
-							echo('<div class="notice">No posts found. Please <a href="' . base_url() . 'index.php/blog/login/" title="Login">login</a> and create an entry.</div>');
+							?>
+							<div class="notice">
+								No posts found. Please <a href="<?php echo(base_url()); ?>index.php/blog/login/" title="Login">login</a> and create an entry.
+							</div>
+							<?php
 						}
 					}
 				?>
