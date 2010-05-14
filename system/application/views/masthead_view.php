@@ -1,0 +1,1 @@
+<h1>JoshuaKehn.com > <a href="<?php echo(base_url()); ?>index.php/blog/">Blog</a></h1>

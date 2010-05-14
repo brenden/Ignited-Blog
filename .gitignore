@@ -1,0 +1,12 @@
+system/application/config/config.php
+system/application/config/database.php
+system/application/config/email.php
+system/application/config/facebook.php
+system/logs/log*.php
+.idea
+*.iml
+.project
+.buildpath
+.htaccess
+.settings
+._*
