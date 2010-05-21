@@ -1,5 +1,5 @@
 # Ignited-Blog
-Author: [Joshua Kehn](http://joshuakehn.com)
+Author: [Joshua Kehn](http://joshuakehn.com)<br />
 Email: Josh.Kehn@gmail.com
 
 ***

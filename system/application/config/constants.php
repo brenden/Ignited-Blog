@@ -36,6 +36,7 @@ define('FOPEN_READ_WRITE_CREATE', 				'a+b');
 define('FOPEN_WRITE_CREATE_STRICT', 			'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
-
+define('CSS_VERSION', '0.1');
+define('JS_VERSION', '0.1');
 /* End of file constants.php */
 /* Location: ./system/application/config/constants.php */
