@@ -19,7 +19,7 @@ class Blog extends Controller
 		
 		if($_SERVER['DOCUMENT_ROOT'] == '/Users/benaroia')
 		{
-			$this->output->enable_profiler(TRUE);
+			//$this->output->enable_profiler(TRUE);
 		}
 	}
 	
@@ -47,13 +47,13 @@ class Blog extends Controller
 		
 		$p = new Blogpost();
 		
-		$p->like('tags', $tag);
+		$p->like('tags', $tag, 'after');
 		
 		$p->get();
 		
 		$this->data['posts'] = $p->all;
 		
-		$this->load->view('recent_view', $this->data);
+		$this->load->view('tag_view', $this->data);
 	}
 	
 	public function flag($kind = null, $id = null)

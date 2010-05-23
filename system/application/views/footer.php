@@ -22,7 +22,7 @@ else
 <div class="span-8">
 	<h3>Made with</h3> 
 	<div class="span-8"> 
-	<a href="http://codeigniter.com/" title="CodeIgniter PHP Framework">CodeIgniter</a>: Open source MVC framework written in PHP
+		<a href="http://codeigniter.com/" title="CodeIgniter PHP Framework">CodeIgniter</a>: Open source MVC framework written in PHP
 	</div> 
 	<div class="span-8"> 
 		<a href="http://stensi.com/datamapper/" title="DataMapper CodeIgniter Plugin">DataMapper</a>: Object Relational Mapper in PHP for CodeIgniter
