@@ -36,12 +36,12 @@
 						echo('<div id="post-footer">');
 						echo('<div id="tags">');
 						
-						$tags = explode(' ', $post->tags);
+						//$tags = explode(' ', $post->tags);
 						
 						echo('Tagged: ');
 						foreach($tags as $tag)
 						{
-							echo('<a class="tag" href="' . base_url() . 'index.php/blog/tagged/' . $tag . '/" title="View questions tagged ' . $tag . '">' . $tag . '</a>');
+							echo('<a class="tag" href="' . base_url() . 'index.php/blog/tagged/' . $tag->tag . '/" title="View questions tagged ' . $tag->tag . '">' . $tag->tag . '</a>');
 						}
 						
 						echo('</div>');

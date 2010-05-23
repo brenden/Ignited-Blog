@@ -19,7 +19,7 @@ class Blog extends Controller
 		
 		if($_SERVER['DOCUMENT_ROOT'] == '/Users/benaroia')
 		{
-			//$this->output->enable_profiler(TRUE);
+			$this->output->enable_profiler(TRUE);
 		}
 	}
 	
@@ -32,11 +32,19 @@ class Blog extends Controller
 		
 		$p = new Blogpost();
 		
-//		if($p->where('blogid = ' . $b->id)->count() > 0)
+		$p->order_by('date', 'desc')->get();
+		$this->data['posts'] = $p->all;		
+		
+		$tags = array();
+		foreach($p->all as $post)
 		{
-			$p->order_by('date', 'desc')->get();
-			$this->data['posts'] = $p->all;			
-		}
+			$t = new Blogtag();
+			$t->where('post_id', $post->id);
+			$t->order_by('tag', 'asc');
+			$t->get();
+			
+			$tags[$post->id][] = $t->all;
+		}	
 		
 		$this->load->view('recent_view', $this->data);
 	}
@@ -45,15 +53,30 @@ class Blog extends Controller
 	{
 		$this->data['title'] = "Entries containing " . $tag;
 		
-		$p = new Blogpost();
+		$t = new Blogtag();
 		
-		$p->like('tags', $tag, 'after');
-		
-		$p->get();
-		
-		$this->data['posts'] = $p->all;
-		
-		$this->load->view('tag_view', $this->data);
+		$t->get_where(array('tag' => $tag));
+
+		if($t->count() > 0)
+		{
+			// Send to view
+			$posts = array();
+			foreach($t as $tag)
+			{
+				$p = new Blogpost();
+				$p->get_where(array('id' => $tag->post_id));
+				
+				$posts[] = $p->stored;
+			}
+			$this->data['posts'] = $posts;
+			$this->load->view('tag_view', $this->data);
+		}
+		else
+		{
+			$notice = array();
+			$notice[] = "No entries were found with that tag.";
+			$this->session->set_flashdata('notices', $notice);
+		}
 	}
 	
 	public function flag($kind = null, $id = null)
@@ -312,24 +335,24 @@ class Blog extends Controller
 					$post->blogid = $this->blog_id;
 					$post->title = htmlentities($this->input->post('title'));
 					$post->body = markdown($this->input->post('body'));
-					$post->markdown = $this->input->post('body');
-					
-					// Process tags
-					
-					$tmp = explode(' ', $this->input->post('tags'));
-					$tags = '';
-					
-					foreach($tmp as $tag)
-					{
-						$tags .= str_replace(',', '', $tag) . ' ';
-					}
-					
-					$post->tags = trim($tags);
-					
+					$post->markdown = $this->input->post('body');					
 					$post->date = $this->input->post('date');
 				
 					if($post->save())
 					{
+						// Process tags
+						$tmp = explode(' ', $this->input->post('tags'));
+						$tags = '';
+
+						foreach($tmp as $tag)
+						{
+							$tag = str_replace(',', '', $tag);
+							// $post will have an ID now
+							$t = new Blogtag();
+							$t->post_id = $post->id;
+							$t->tag = $tag;
+							$t->save();
+						}
 						$this->data['messages']['success'][] = 'Successfully edited ' . $post->title . '.';
 						$this->view($post->id);
 					}
@@ -365,6 +388,14 @@ class Blog extends Controller
 			$this->data['post'] = $p;
 			
 			$this->data['title'] .= ' - ' . $p->title;
+			
+			$t = new Blogtag();
+			$t->where('post_id', $p->id);
+			$t->order_by('tag', 'asc');
+			$t->get();
+			
+			$this->data['tags'] = $t->all;
+			
 		}
 		else
 		{
@@ -385,6 +416,14 @@ class Blog extends Controller
 			$this->data['post'] = $p;
 			
 			$this->data['title'] .= ' - ' . $p->title;
+			
+			$t = new Blogtag();
+			$t->where('post_id', $p->id);
+			$t->order_by('tag', 'asc');
+			$t->get();
+			
+			$this->data['tags'] = $t->all;
+			
 			$c = new Blogcomment();
 			
 			$c->where('postid = ' . $p->id);
@@ -438,24 +477,24 @@ class Blog extends Controller
 				$post->title = htmlentities($this->input->post('title'));
 				$post->body = markdown($this->input->post('body'));
 				$post->markdown = $this->input->post('body');
-				
-				//Process tags
-				
-				$tmp = explode(' ', $this->input->post('tags'));
-				$tags = '';
-				
-				foreach($tmp as $tag)
-				{
-					$tags .= str_replace(',', '', $tag) . ' ';
-				}
-				
-				$post->tags = trim($tags);
-				
-				
 				$post->date = $this->input->post('date');
 				
 				if($post->save())
 				{
+					// Process tags
+					$tmp = explode(' ', $this->input->post('tags'));
+					$tags = '';
+					
+					foreach($tmp as $tag)
+					{
+						// $post will have an ID now
+						$tag = str_replace(',', '', $tag);
+						$t = new Blogtag();
+						$t->post_id = $post->id;
+						$t->tag = $tag;
+						$t->save();
+					}
+					
 					$this->data['messages']['success'][] = 'Successfully inserted ' . $post->title . '.';
 					$this->view($post->id);
 				}
