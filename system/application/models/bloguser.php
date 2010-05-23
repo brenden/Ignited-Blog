@@ -44,7 +44,7 @@ class Bloguser extends DataMapper
 				'rules' => array('trim')
 				),
 			array(
-				'field' => 'blogid',
+				'field' => 'blog_id',
 				'label' => 'Blog ID',
 				'rules' => array('required', 'trim', 'numeric')
 				),

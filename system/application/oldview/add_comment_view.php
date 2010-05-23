@@ -129,7 +129,7 @@
 					
 					echo form_label('Date', 'date', array('class' => 'label'));
 					echo form_hidden('date', date("m-d-Y H:i:s"));
-					echo form_hidden('postid', $post->id);
+					echo form_hidden('post_id', $post->id);
 					echo '<br />';
 					echo(date("m-d-Y H:i"));
 					

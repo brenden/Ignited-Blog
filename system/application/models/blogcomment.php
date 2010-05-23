@@ -7,12 +7,12 @@ class Blogcomment extends DataMapper
 	
 	var $validation = array(
 			array(
-				'field' => 'postid',
+				'field' => 'post_id',
 				'label' => 'Post ID',
 				'rules' => array('required', 'numeric')
 				),
 			array(
-				'field' => 'blogid',
+				'field' => 'blog_id',
 				'label' => 'Blog ID',
 				'rules' => array('required', 'numeric')
 				),

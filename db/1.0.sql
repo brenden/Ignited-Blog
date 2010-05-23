@@ -29,7 +29,7 @@ CREATE TABLE `blogs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `blogs`
@@ -43,10 +43,10 @@ INSERT INTO `blogs` VALUES(1, 'default');
 -- Table structure for table `comments`
 --
 
-CREATE TABLE `comments` (
+CREATE TABLE `jkblog_comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `postid` int(11) NOT NULL,
-  `blogid` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `blog_id` int(11) NOT NULL,
   `author` varchar(256) NOT NULL,
   `email` varchar(256) NOT NULL,
   `website` varchar(256) DEFAULT NULL,
@@ -56,9 +56,9 @@ CREATE TABLE `comments` (
   `markdown` text,
   `flagged` varchar(20) DEFAULT 'false',
   PRIMARY KEY (`id`),
-  KEY `postid` (`postid`),
+  KEY `post_id` (`post_id`),
   KEY `flagged` (`flagged`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -68,12 +68,12 @@ CREATE TABLE `comments` (
 
 CREATE TABLE `flags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `commentid` int(11) NOT NULL,
+  `comment_id` int(11) NOT NULL,
   `ip` varchar(256) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `commentid` (`commentid`),
+  KEY `comment_id` (`comment_id`),
   KEY `ip` (`ip`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table `posts`
@@ -81,8 +81,8 @@ CREATE TABLE `flags` (
 
 CREATE TABLE `posts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `blogid` int(11) NOT NULL,
-  `userid` int(11) NOT NULL,
+  `blog_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `title` varchar(256) NOT NULL,
   `body` text NOT NULL,
   `markdown` text NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE `posts` (
   PRIMARY KEY (`id`),
   KEY `date` (`date`),
   KEY `tags` (`tags`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table `users`
@@ -107,6 +107,6 @@ CREATE TABLE `users` (
   `lastname` varchar(256) DEFAULT NULL,
   `email` varchar(256) DEFAULT NULL,
   `lastlogin` varchar(256) DEFAULT NULL,
-  `blogid` varchar(256) DEFAULT NULL,
+  `blog_id` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;

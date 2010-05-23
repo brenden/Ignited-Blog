@@ -32,7 +32,7 @@ class Blog extends Controller
 		
 		$p = new Blogpost();
 		
-//		if($p->where('blogid = ' . $b->id)->count() > 0)
+//		if($p->where('blog_id = ' . $b->id)->count() > 0)
 		{
 			$p->order_by('date', 'desc')->get();
 			$this->data['posts'] = $p->all;			
@@ -62,8 +62,10 @@ class Blog extends Controller
 		{
 			if($kind == 'post')
 			{
-				$this->data['messages']['notices'][] = "Post flagging not enabled at this time.";
-				$this->index();
+				$notices = array();
+				$notices[] = "Post flagging is not enabled at this time.";
+				$this->session->set_userdata('notices', $notices);
+				redirect('/', 'blog');
 			}
 			else if($kind == 'comment')
 			{
@@ -76,21 +78,21 @@ class Blog extends Controller
 				if($f->exists($id, $_SERVER['REMOTE_ADDR']))
 				{
 					$this->data['messages']['notices'][] = "You have already flagged this comment.";
-					$this->comments($c->postid);
+					$this->comments($c->post_id);
 				}
 				else
 				{
 					if($f->save() and $c->save())
 					{
 						$this->data['messages']['success'][] = "Comment flagged successfully.";
-						$this->comments($c->postid);
+						$this->comments($c->post_id);
 					}
 					else
 					{
 						$this->data['messages']['errors'][] = "Error flagging comment";
 						$this->data['messages']['errors'][] = $c->error->string;
 						$this->data['messages']['errors'][] = $f->error->string;
-						$this->comments($c->postid);
+						$this->comments($c->post_id);
 					}
 				}
 			}
@@ -111,6 +113,14 @@ class Blog extends Controller
 	{
 		$p = new Blogpost();
 		
+		if(!$this->session->userdata('loggedin'))
+		{
+			$messages = array();
+			$messages[] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to modify an entry.';
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');		
+		}
+		
 		if($p->exists($id))
 		{
 			$p->get_where(array('id' => $id));
@@ -119,26 +129,40 @@ class Blog extends Controller
 			
 			if($p->save())
 			{
-				$this->data['messages']['success'][] = 'Post successfully undeleted.';
-				$this->index();
+				$successes = array();
+				$successes[] = "Post successfully undeleted.";
+				$this->session->set_userdata('successes', $successes);
+				redirect('/', 'blog');
+				
 			}
 			else
 			{
-				$this->data['messages']['errors'][] = "Error undeleting post.";
-				$this->data['messages']['errors'][] = $p->error->string;
-				$this->edit($id);
+				$messages = array();
+				$messages[] = "Error undeleting post.";
+				$this->session->set_userdata('successes', $messages);
+				redirect('/blog/edit/' . $id, 'blog');
 			}
 		}
 		else
 		{
-			$this->data['messages']['errors'][] = "Post could not be undeleted because it could not be found.";
-			$this->index();
+			$messages = array();
+			$messages[] = "Post could not be undeleted because it could not be found.";
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');
 		}
 	}
 	
 	public function delete($id)
 	{
 		$p = new Blogpost();
+		
+		if(!$this->session->userdata('loggedin'))
+		{
+			$messages = array();
+			$messages[] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to modify an entry.';
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');		
+		}
 		
 		if($p->exists($id))
 		{
@@ -148,20 +172,25 @@ class Blog extends Controller
 			
 			if($p->save())
 			{
-				$this->data['messages']['success'][] = 'Post successfully deleted. <a href="' . base_url() . 'index.php/blog/undelete/' . $id . '/" title="Undo deletion">Undo</a>';
-				$this->index();
+				$messages = array();
+				$messages[] = 'Post successfully deleted. <a href="' . base_url() . 'index.php/blog/undelete/' . $id . '/" title="Undo deletion">Undo</a>';
+				$this->session->set_userdata('successes', $messages);
+				redirect('/', 'blog');
 			}
 			else
 			{
-				$this->data['messages']['errors'][] = "Error deleting post.";
-				$this->data['messages']['errors'][] = $p->error->string;
-				$this->edit($id);
+				$messages = array();
+				$messages[] = "Error deleting post.";
+				$this->session->set_userdata('errors', $messages);
+				redirect('/blog/edit/' . $id, 'blog');
 			}
 		}
 		else
 		{
-			$this->data['messages']['errors'][] = "Post could not be deleted because it could not be found.";
-			$this->index();
+			$messages = array();
+			$messages[] = "Post could not be deleted because it could not be found";
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');		
 		}
 	}
 	
@@ -170,13 +199,13 @@ class Blog extends Controller
 		$c = new Blogcomment();
 		$p = new Blogpost();
 		
-		if($p->exists($this->input->post('postid')))
+		if($p->exists($this->input->post('post_id')))
 		{
-			$p->get_where(array('id' => $this->input->post('postid')));
+			$p->get_where(array('id' => $this->input->post('post_id')));
 			if($p->commentlocked == "open")
 			{
-				$c->postid = $p->id;
-				$c->blogid = $this->blog_id;
+				$c->post_id = $p->id;
+				$c->blog_id = $this->blog_id;
 				$c->author = $this->input->post('author');
 				$c->email = $this->input->post('email');
 				$c->website = $this->input->post('website');
@@ -188,29 +217,39 @@ class Blog extends Controller
 				
 				if($c->save())
 				{
-					$this->data['messages']['success'][] = "Successfully added comment";
-					$this->comments($c->postid);
+					$messages = array();
+					$messages[] = "Successfully added comment";
+					$this->session->set_userdata('successes', $messages);
+					redirect('/blog/comments/' . $c->post_id, 'blog');
 				}
 				else
 				{
-					$this->data['messages']['errors'][] = $c->error->string;
 					$this->data['author'] = $this->input->post('author');
 					$this->data['email'] = $this->input->post('email');
 					$this->data['website'] = $this->input->post('website');
 					$this->data['body'] = $this->input->post('body');
-					$this->addcomment($c->postid);
+					
+					$messages = array();
+					$messages[] = "Error adding comment.";
+					$messages[] = $c->error->string;
+					$this->session->set_userdata('errors', $messages);
+					redirect('/blog/comments/' . $id, 'blog');
 				}
 			}
 			else
 			{
-				$this->data['messages']['notices'][] = "Comments are locked on this entry.";
-				$this->view($this->input->post('postid'));
+				$messages = array();
+				$messages[] = "Comments are locked on this entry";
+				$this->session->set_userdata('notices', $messages);
+				redirect('/blog/comments/' . $id, 'blog');
 			}
 		}
 		else
 		{
-			$this->data['messages']['notices'][] = "Post could not be found.";
-			$this->index();
+			$messages = array();
+			$messages[] = "Post could not be found";
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');
 		}
 	}
 	
@@ -227,7 +266,7 @@ class Blog extends Controller
 				$this->data['post'] = $p;
 			
 				$c = new Blogcomment();
-				$c->where('postid = ' . $p->id);
+				$c->where('post_id = ' . $p->id);
 				$c->order_by('date', 'asc');
 				$c->get();
 		
@@ -237,15 +276,18 @@ class Blog extends Controller
 			}
 			else
 			{
-				$this->data['messages']['notices'][] = "Comments are locked on this entry.";
-				$this->comments($id);
+				$messages = array();
+				$messages[] = "Comments are locked on this entry";
+				$this->session->set_userdata('notices', $messages);
+				redirect('/blog/comments/' . $id, 'blog');
 			}
 		}
 		else
 		{
-			echo("Doesn't exist");
-			$this->data['messeges']['errors'][] = "No post by that id was found.";
-			$this->view($id);
+			$messages = array();
+			$messages[] = "Post could not be found";
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');
 		}
 	}
 	
@@ -266,18 +308,20 @@ class Blog extends Controller
 				$this->data['post'] = $p;
 			
 				$c = new Blogcomment();
-				$c->where('postid = ' . $p->id);
+				$c->where('post_id = ' . $p->id);
 				$c->order_by('date', 'asc');
 				$c->get();
 			
 				$this->data['comments'] = $c->all;
+				$this->load->view('comment_view', $this->data);
 			}
 			else
 			{
-				$this->data['title'] .= "None";
-				$this->data['messages']['errors'][] = "No comments were found because that post could not be found.";
+				$messages = array();
+				$messages[] = "Post could not be found";
+				$this->session->set_userdata('errors', $messages);
+				redirect('/', 'blog');
 			}
-			$this->load->view('comment_view', $this->data);
 		}
 	}
 	
@@ -287,8 +331,10 @@ class Blog extends Controller
 		
 		if(!$this->session->userdata('loggedin'))
 		{
-			$this->data['messages']['errors'][] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to create an entry.';
-			$this->index();			
+			$messages = array();
+			$messages[] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to modify an entry.';
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');		
 		}
 		else
 		{
@@ -303,13 +349,15 @@ class Blog extends Controller
 		
 				if(!$u->exists())
 				{
-					$this->data['messages']['errors'][] = 'Something extremely wonky has happened. You appear to be logged in but your username could not be found. Please email me at Josh.Kehn@gmail.com to resolve this issue.';
-					$this->index();			
+					$messages = array();
+					$messages[] = 'Something extremely wonky has happened. You appear to be logged in but your username could not be found. Please email me at Josh.Kehn@gmail.com to resolve this issue.';
+					$this->session->set_userdata('errors', $messages);
+					redirect('/', 'blog');	
 				}
 				else
 				{
-					$post->userid = $u->id;
-					$post->blogid = $this->blog_id;
+					$post->user_id = $u->id;
+					$post->blog_id = $this->blog_id;
 					$post->title = htmlentities($this->input->post('title'));
 					$post->body = markdown($this->input->post('body'));
 					$post->markdown = $this->input->post('body');
@@ -330,31 +378,46 @@ class Blog extends Controller
 				
 					if($post->save())
 					{
-						$this->data['messages']['success'][] = 'Successfully edited ' . $post->title . '.';
-						$this->view($post->id);
+						$messages = array();
+						$messages[] = 'Successfully edited ' . $post->title . '.';
+						$this->session->set_userdata('successes', $messages);
+						redirect('/', 'blog');
 					}
 					else
 					{
 						$this->data['messages']['errors'][] = 'Error editing post.';
 						$this->data['messages']['errors'][] = $post->error->string;
 						$this->data['post'] = $post;
-					
+						
+						$messages = array();
+						$messages[] = "Error editing post";
+						$messages[] = $post->error->string;
+						$this->session->set_userdata('errors', $messages);
+						
 						$this->load->view('post_edit_view', $this->data);
 					}
 				}
 			}
 			else
 			{
-				$this->data['messages']['errors'][] = 'No post found to edit.';
-				$this->data['post'] = $post;
-			
-				$this->load->view('post_edit_view', $this->data);
+				$messages = array();
+				$messages[] = "No post found to edit";
+				$this->session->set_userdata('errors', $messages);
+				redirect('/', 'blog');
 			}
 		}
 	}
 	
 	public function edit($id)
 	{
+		if(!$this->session->userdata('loggedin'))
+		{
+			$messages = array();
+			$messages[] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to modify an entry.';
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'view');		
+		}
+		
 		$this->data['title'] = "Edit Post";
 		$p = new Blogpost();
 		
@@ -365,12 +428,15 @@ class Blog extends Controller
 			$this->data['post'] = $p;
 			
 			$this->data['title'] .= ' - ' . $p->title;
+			$this->load->view('post_edit_view', $this->data);
 		}
 		else
 		{
-			$this->data['messages']['errors'][] = "No post by that id found.";
+			$messages = array();
+			$messages[] = "No post by that id found.";
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'blog');
 		}
-		$this->load->view('post_edit_view', $this->data);
 	}
 	
 	public function view($id)
@@ -387,7 +453,7 @@ class Blog extends Controller
 			$this->data['title'] .= ' - ' . $p->title;
 			$c = new Blogcomment();
 			
-			$c->where('postid = ' . $p->id);
+			$c->where('post_id = ' . $p->id);
 			$this->data['commentcount'] = $c->count();
 		}
 		else
@@ -406,8 +472,10 @@ class Blog extends Controller
 		}
 		else
 		{
-			$this->data['messages']['errors'][] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to create an entry.';
-			$this->index();			
+			$messages = array();
+			$messages[] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to create an entry.';
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'view');		
 		}
 	}
 	
@@ -417,8 +485,10 @@ class Blog extends Controller
 		
 		if(!$this->session->userdata('loggedin'))
 		{
-			$this->data['messages']['errors'][] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to create an entry.';
-			$this->index();			
+			$messages = array();
+			$messages[] = 'Please <a href="' . base_url() . 'index.php/blog/login" title="Login">login</a> before attempting to create an entry.';
+			$this->session->set_userdata('errors', $messages);
+			redirect('/', 'view');		
 		}
 		else
 		{
@@ -428,13 +498,15 @@ class Blog extends Controller
 		
 			if(!$u->exists())
 			{
-				$this->data['messages']['errors'][] = 'Something extremely wonky has happened. You appear to be logged in but your username could not be found. Please email me at Josh.Kehn@gmail.com to resolve this issue.';
-				$this->index();			
+				$messages = array();
+				$messages[] = 'Something extremely wonky has happened. You appear to be logged in but your username could not be found. Please email me at Josh.Kehn@gmail.com to resolve this issue.';
+				$this->session->set_userdata('errors', $messages);
+				redirect('/', 'blog');	
 			}
 			else
 			{
-				$post->userid = $u->id;
-				$post->blogid = $this->blog_id;
+				$post->user_id = $u->id;
+				$post->blog_id = $this->blog_id;
 				$post->title = htmlentities($this->input->post('title'));
 				$post->body = markdown($this->input->post('body'));
 				$post->markdown = $this->input->post('body');
@@ -456,13 +528,19 @@ class Blog extends Controller
 				
 				if($post->save())
 				{
-					$this->data['messages']['success'][] = 'Successfully inserted ' . $post->title . '.';
-					$this->view($post->id);
+					$messages = array();
+					$messages[] = 'Successfully inserted ' . $post->title . '.';
+					$this->session->set_userdata('success', $messages);
+					redirect('/blog/view/' . $post->id, 'blog');	
+					
 				}
 				else
 				{
-					$this->data['messages']['errors'][] = 'Error inserting post.';
-					$this->data['messages']['errors'][] = $post->error->string;
+					$messages = array();
+					$messages[] = 'Error inserting post.';
+					$messages[] = $post->error->string;
+					$this->session->set_userdata('errors', $messages);
+					
 					$this->data['post_title'] = $this->input->post('title');
 					$this->data['post_body'] = $this->input->post('body');
 					$this->load->view('insert_view', $this->data);
@@ -496,26 +574,33 @@ class Blog extends Controller
 						);
 					$this->session->set_userdata($arr);
 					
-					$this->data['messages']['success'][] = "Successfully logged in as ".$u->username;
-					 
-					$this->index();
+					$messages = array();
+					$messages[] = 'Successfully logged in.';
+					$this->session->set_userdata('successes', $messages);
+					redirect('/', 'view');		
 				}
 				else
 				{
-					$this->data['errors'][] = "Incorrect username or password.";				
+					$messages = array();
+					$messages[] = 'Incorrect username or password.';				
+					$this->session->set_userdata('errors', $messages);
 					$this->load->view('login_view', $this->data);					
 				}
 			}
 			else
 			{
-				$this->data['errors'][] = "Incorrect username or password.";				
-				$this->load->view('login_view', $this->data);
+				$messages = array();
+				$messages[] = 'Incorrect username or password.';				
+				$this->session->set_userdata('errors', $messages);
+				$this->load->view('login_view', $this->data);					
 			}
 		}
 		else if($this->input->post('post'))
 		{
-			$this->data['errors'][] = "Please fill out all fields.";
-			$this->load->view('login_view', $this->data);
+			$messages = array();
+			$messages[] = 'Please fill out all fields.';
+			$this->session->set_userdata('errors', $messages);
+			$this->load->view('login_view', $this->data);					
 		}
 		else
 		{
@@ -532,8 +617,10 @@ class Blog extends Controller
 			);
 		
 		$this->session->unset_userdata($arr);
-		$this->data['messages']['success'][] = "Successfully logged out.";
-		$this->login();
+		$messages = array();
+		$messages[] = 'Successfully logged out.';				
+		$this->session->set_userdata('successes', $messages);
+		redirect('/blog/login');
 	}
 }
 /* End of file blog.php */

@@ -6,7 +6,7 @@ class Blogflag extends DataMapper
 	
 	var $validation = array(
 			array(
-				'field' => 'commentid',
+				'field' => 'comment_id',
 				'label' => 'Comment ID',
 				'rules' => array('required', 'numeric')
 				),
@@ -23,10 +23,10 @@ class Blogflag extends DataMapper
 	
 	function exists($id, $ip)
 	{
-		$this->commentid = $id;
+		$this->comment_id = $id;
 		$this->ip = $ip;
 		
-		$this->where('commentid', $id);
+		$this->where('comment_id', $id);
 		$this->where('ip', $ip);
 		
 		if($this->count() > 0)

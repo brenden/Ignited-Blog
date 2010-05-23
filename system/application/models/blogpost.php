@@ -8,12 +8,12 @@ class Blogpost extends DataMapper
 	
 	var $validation = array(
 			array(
-				'field' => 'blogid',
+				'field' => 'blog_id',
 				'label' => 'Blog ID',
 				'rules' => array('required', 'numeric')
 				),
 			array(
-				'field' => 'userid',
+				'field' => 'user_id',
 				'label' => 'User',
 				'rules' => array('required', 'numeric')
 				),
