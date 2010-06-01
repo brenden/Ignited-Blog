@@ -17,10 +17,7 @@ class Blog extends Controller
 		$this->load->helper('markdown');
 		$this->load->library('session');
 		
-		if($_SERVER['DOCUMENT_ROOT'] == '/Users/benaroia')
-		{
-			$this->output->enable_profiler(TRUE);
-		}
+		$this->output->enable_profiler(TRUE);
 	}
 	
 	public function index()
@@ -34,6 +31,8 @@ class Blog extends Controller
 		
 //		if($p->where('blog_id = ' . $b->id)->count() > 0)
 		{
+			$p->limit(10);
+			$p->where(array('deleted' => 'false'));
 			$p->order_by('date', 'desc')->get();
 			$this->data['posts'] = $p->all;			
 		}
@@ -48,7 +47,7 @@ class Blog extends Controller
 		$p = new Blogpost();
 		
 		$p->like('tags', $tag);
-		
+		$p->order_by('date', 'desc');
 		$p->get();
 		
 		$this->data['posts'] = $p->all;
