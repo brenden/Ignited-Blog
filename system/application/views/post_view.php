@@ -30,8 +30,8 @@
 						echo('<div class="date">');
 						echo('Posted on ' . $post->date);
 						echo('</div>');
-						
-						echo('<p id="post-body">');
+					
+						echo('<div id="post-body">');	
 						echo($post->body);
 						echo('<div id="post-footer">');
 						echo('<div id="tags">');
@@ -61,7 +61,7 @@
 						}
 						echo('<br /><a href="' . base_url() . 'index.php/blog/" title="Back to home page">Back to home page</a>');
 						echo('</div>');
-						echo('</p>');
+						echo('</div>');
 					}
 				?>
 			</div>
