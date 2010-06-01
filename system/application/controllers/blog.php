@@ -18,7 +18,7 @@ class Blog extends Controller
 		$this->load->helper('seo');
 		$this->load->library('session');
 		
-		$this->output->enable_profiler(TRUE);
+		// $this->output->enable_profiler(TRUE);
 	}
 	
 	public function index()
