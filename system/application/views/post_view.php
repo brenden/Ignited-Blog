@@ -26,7 +26,7 @@
 					
 					if(isset($post))
 					{
-						echo('<h2><a href="' . base_url() . 'index.php/blog/view/' . $post->id . '/' . str_replace(' ', '-',$post->title) . '/" title="' . $post->title . '">' . $post->title . '</a></h2>');
+						echo('<h2><a href="' . base_url() . 'index.php/blog/view/' . $post->id . '/' . make_url_friendly($post->title) . '/" title="' . $post->title . '">' . $post->title . '</a></h2>');
 						echo('<div class="date">');
 						echo('Posted on ' . $post->date);
 						echo('</div>');

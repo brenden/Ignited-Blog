@@ -25,7 +25,7 @@
 					if(isset($post) and isset($comments))
 					{
 						?>
-						<h2>Comments for <a href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($post->id)?>/<?php echo(str_replace(' ', '-', $post->title)); ?>/" 
+						<h2>Comments for <a href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($post->id)?>/<?php echo make_url_friendly($post->title)); ?>/" 
 							title="<?php echo($post->title)?>"><?php echo($post->title); ?></a>
 						<?php
 						if(!$post->commentlock)
@@ -34,7 +34,7 @@
 						}
 						?>
 						</h2>
-						<h4><a href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($post->id)?>/<?php echo(str_replace(' ', '-', $post->title)); ?>/" 
+						<h4><a href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($post->id)?>/<?php echo make_url_friendly($post->title)); ?>/" 
 							title="<?php echo($post->title)?>">Back to post</a></h4>
 						<?php
 						

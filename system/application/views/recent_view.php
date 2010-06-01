@@ -35,7 +35,7 @@
 							?>
 							<div class="post">
 								<h3>
-									<a href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($p->id); ?>/<?php echo(str_replace(' ', '-',$p->title)); ?>/" title="<?php echo($p->title); ?>"><?php echo($p->title); ?></a>
+									<a href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($p->id); ?>/<?php echo make_url_friendly($p->title); ?>/" title="<?php echo($p->title); ?>"><?php echo($p->title); ?></a>
 								</h3>
 							
 								<div class="date">
@@ -53,7 +53,7 @@
 							?>
 							</div>
 							<p class="more">
-								<a class="" href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($p->id); ?>/<?php echo(str_replace(' ', '-', $p->title)); ?>/" title="Read Entry">Read</a>
+								<a class="" href="<?php echo(base_url()); ?>index.php/blog/view/<?php echo($p->id); ?>/<?php echo make_url_friendly($p->title); ?>/" title="Read Entry">Read</a>
 							<?php
 							if($this->session->userdata('loggedin'))
 							{

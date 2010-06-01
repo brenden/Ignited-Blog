@@ -15,6 +15,7 @@ class Blog extends Controller
 		$this->load->helper('url');
 		$this->load->helper('form'); 
 		$this->load->helper('markdown');
+		$this->load->helper('seo');
 		$this->load->library('session');
 		
 		$this->output->enable_profiler(TRUE);
